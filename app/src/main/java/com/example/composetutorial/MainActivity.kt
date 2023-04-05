@@ -1,6 +1,8 @@
 package com.example.composetutorial
 
+import android.content.Context
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 
@@ -13,9 +15,11 @@ import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.lazy.items
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -62,6 +66,9 @@ fun MessageCard(msg: Message) {
 @Composable
 fun SimpleTextField() {
     var text by remember { mutableStateOf(TextFieldValue("")) }
+    val todoList = remember { mutableStateListOf<String>() }
+    var context = LocalContext.current
+
     Row {
         OutlinedTextField(
             value = text,
@@ -70,19 +77,22 @@ fun SimpleTextField() {
                 text = item
             }
         )
-        Button(onClick = {
-            // agregar a la lista
+        Button(
+            onClick = {
+                todoList.add(text.text)
         }) {
             Text(text = "Add item")
         }
     }
     LazyColumn{
-        items(5) { index ->
-            Text(text = "Item: $index")
+        items(todoList) { item -> Text(text = item)
         }
     }
 }
 
+private fun mToast(context: Context, text: String){
+    Toast.makeText(context, text, Toast.LENGTH_LONG).show()
+}
 
 @Preview(showBackground = true)
 @Composable
