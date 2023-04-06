@@ -73,18 +73,24 @@ fun SimpleTextField() {
         OutlinedTextField(
             value = text,
             label = { Text(text = "Add your item") },
+            modifier = Modifier.padding(horizontal = 10.dp, vertical = 10.dp),
             onValueChange = { item ->
                 text = item
             }
         )
+
         Button(
+            modifier = Modifier.padding(top = 10.dp),
             onClick = {
                 todoList.add(text.text)
         }) {
             Text(text = "Add item")
         }
     }
-    LazyColumn{
+
+    Spacer(modifier = Modifier.padding(8.dp))
+
+    LazyColumn(modifier = Modifier.padding(10.dp)){
         items(todoList) { item -> Text(text = item)
         }
     }
