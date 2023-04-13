@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 
 import androidx.compose.ui.res.painterResource
 import androidx.compose.foundation.Image
@@ -20,31 +21,38 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.lazy.items
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+    private val mainViewModel: MainViewModel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            HomeDisplay()
+            SimpleTextField(
+                onTaskAdded = mainViewModel::addTask,
+                newTaskChanged = mainViewModel::newTaskChanged
+            )
         }
     }
 }
 
 data class Message(val author: String, val body: String)
 
-@Composable
-fun HomeDisplay() {
-    Column {
-        MessageCard(msg = Message("Jenny", "Jetpack Compose"))
-        Spacer(modifier = Modifier.height(4.dp))
-        SimpleTextField()
-    }
-}
+//@Composable
+//fun HomeDisplay() {
+//    Column {
+////        MessageCard(msg = Message("Jenny", "Jetpack Compose"))
+////        Spacer(modifier = Modifier.height(4.dp))
+//        SimpleTextField()
+//    }
+//}
 
 @Composable
 fun MessageCard(msg: Message) {
     Row(modifier = Modifier.padding(all = 8.dp)) {
-        Image (
+        Image(
             painter = painterResource(R.drawable.profile_picture),
             contentDescription = "Contact profile picture",
             modifier = Modifier
@@ -64,7 +72,10 @@ fun MessageCard(msg: Message) {
 }
 
 @Composable
-fun SimpleTextField() {
+fun SimpleTextField(
+    onTaskAdded: () -> Unit,
+    newTaskChanged: (String) -> Unit
+) {
     var text by remember { mutableStateOf(TextFieldValue("")) }
     val todoList = remember { mutableStateListOf<String>() }
     var context = LocalContext.current
@@ -74,34 +85,35 @@ fun SimpleTextField() {
             value = text,
             label = { Text(text = "Add your item") },
             modifier = Modifier.padding(horizontal = 10.dp, vertical = 10.dp),
-            onValueChange = { item ->
-                text = item
-            }
+//            onValueChange = { item ->
+//                text = item
+//            }
+            onValueChange = { item -> newTaskChanged(item.text) }
         )
 
         Button(
             modifier = Modifier.padding(top = 10.dp),
-            onClick = {
-                todoList.add(text.text)
-        }) {
+            onClick = onTaskAdded
+        ) {
             Text(text = "Add item")
         }
     }
 
     Spacer(modifier = Modifier.padding(8.dp))
 
-    LazyColumn(modifier = Modifier.padding(10.dp)){
-        items(todoList) { item -> Text(text = item)
+    LazyColumn(modifier = Modifier.padding(10.dp)) {
+        items(todoList) { item ->
+            Text(text = item)
         }
     }
 }
 
-private fun mToast(context: Context, text: String){
+private fun mToast(context: Context, text: String) {
     Toast.makeText(context, text, Toast.LENGTH_LONG).show()
 }
 
-@Preview(showBackground = true)
-@Composable
-fun DefaultPreview() {
-    HomeDisplay()
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun DefaultPreview() {
+//    HomeDisplay()
+//}
